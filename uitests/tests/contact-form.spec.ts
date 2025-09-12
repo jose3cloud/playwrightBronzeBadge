@@ -1,5 +1,5 @@
-import { test, expect } from './fixtures/baseTest';
-import { LetsTalkPage } from './pages/LetsTalkPage';
+import { test, expect } from '../fixtures/baseTest';
+import { LetsTalkPage } from '../pages/LetsTalkPage';
 
 test('3Cloud Contact Form Error Validation', async ({ context, homePage, financialServicesPage }) => {
     
