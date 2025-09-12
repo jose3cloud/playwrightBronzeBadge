@@ -1,31 +1,26 @@
-import { test, expect, Page } from '@playwright/test';
-import { HomePage } from './pages/HomePage';
-import { FinancialServicesPage } from './pages/FinancialServicesPage';
+import { test, expect } from './fixtures/baseTest';
 import { LetsTalkPage } from './pages/LetsTalkPage';
 
-test('3Cloud Contact Form Error Validation', async ({ page, context }) => {
-    
-    const home = new HomePage(page);
-    const financial = new FinancialServicesPage(page);
+test('3Cloud Contact Form Error Validation', async ({ page, context, homePage, financialServicesPage, letsTalkPage }) => {
     
     await test.step('Navigate to 3Cloud Solutions homepage', async () => {
-        await home.goto();
+        await homePage.goto();
     });
 
     await test.step('Hover over Who We Serve dropdown menu', async () => {
-        await home.hoverWhoWeServe();
+        await homePage.hoverWhoWeServe();
     });
 
     await test.step('Click on Financial Services option', async () => {
-        await home.clickFinancialServices();
+        await homePage.clickFinancialServices();
     });
 
     await test.step('Click Let\'s Talk button to open contact form', async () => {
-        await expect(financial.letsTalkButton).toBeVisible();
+        await expect(financialServicesPage.letsTalkButton).toBeVisible();
         
         const [newPage] = await Promise.all([
             context.waitForEvent('page'),
-            financial.letsTalkButton.click(),
+            financialServicesPage.letsTalkButton.click(),
         ]);
         await newPage.waitForLoadState('load');
         
