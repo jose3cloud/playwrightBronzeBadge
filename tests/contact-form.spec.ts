@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures/baseTest';
 import { LetsTalkPage } from './pages/LetsTalkPage';
 
-test('3Cloud Contact Form Error Validation', async ({ page, context, homePage, financialServicesPage, letsTalkPage }) => {
+test('3Cloud Contact Form Error Validation', async ({ context, homePage, financialServicesPage }) => {
     
     await test.step('Navigate to 3Cloud Solutions homepage', async () => {
         await homePage.goto();
