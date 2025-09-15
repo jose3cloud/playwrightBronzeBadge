@@ -1,18 +1,56 @@
 import { PlaywrightTestConfig } from '@playwright/test';
 
+// Common settings shared across all browsers
+const commonSettings = {
+  headless: true,
+  screenshot: 'only-on-failure' as const,
+  video: 'retain-on-failure' as const,
+  baseURL: 'https://3cloudsolutions.com',
+};
+
+// Common launch arguments for Chromium and WebKit
+const commonLaunchArgs = [
+  '--disable-web-security',
+  '--disable-features=VizDisplayCompositor',
+  '--disable-background-timer-throttling',
+  '--disable-backgrounding-occluded-windows',
+  '--disable-renderer-backgrounding',
+];
+
 const config: PlaywrightTestConfig = {
-  testDir: './tests',
+  testDir: './uitests/tests',
   use: {
+    ...commonSettings,
     browserName: 'chromium',
-    headless: true,
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
-    baseURL: 'https://3cloudsolutions.com',
   },
   projects: [
-    { name: 'chromium', use: { browserName: 'chromium' } },
-    { name: 'firefox', use: { browserName: 'firefox' } },
-    { name: 'webkit', use: { browserName: 'webkit' } },
+    {
+      name: 'chromium',
+      use: {
+        ...commonSettings,
+        browserName: 'chromium',
+        launchOptions: {
+          args: commonLaunchArgs,
+        },
+      },
+    },
+    {
+      name: 'firefox',
+      use: {
+        ...commonSettings,
+        browserName: 'firefox',
+      },
+    },
+    {
+      name: 'webkit',
+      use: {
+        ...commonSettings,
+        browserName: 'webkit',
+        launchOptions: {
+          args: commonLaunchArgs,
+        },
+      },
+    },
   ],
 };
 
