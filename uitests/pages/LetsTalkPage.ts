@@ -1,88 +1,56 @@
-import { Page, FrameLocator, expect } from '@playwright/test';
+import { Page } from '@playwright/test';
+import {
+  FormField,
+  LetsTalkFormSection,
+} from '../sections/letsTalkFormSection';
+import { ContactFormData } from '../data/contactForm';
 
 export class LetsTalkPage {
-    readonly page: Page;
-    private iframe: FrameLocator | null = null;
+  readonly page: Page;
+  readonly letsTalkFormSection: LetsTalkFormSection;
 
-    constructor(page: Page) {
-        this.page = page;
-    }
-    
-    private async getContactFormIframe(): Promise<FrameLocator> {
-        if (this.iframe) return this.iframe;
+  constructor(page: Page) {
+    this.page = page;
+    this.letsTalkFormSection = new LetsTalkFormSection(page);
+  }
 
-        const selectors = ['iframe[id="hs-form-iframe-1"]', 'iframe[id="hs-form-iframe-0"]'];
-        
-        for (const selector of selectors) {
-            try {
-                const iframe = this.page.frameLocator(selector);
-                await iframe.locator('input[name="firstname"]').waitFor({ state: 'visible', timeout: 5000 });
-                return this.iframe = iframe;
-            } catch {
-                continue;
-            }
-        }
-        
-        throw new Error('No contact form iframe found');
-    }
+  async fillForm(formData: ContactFormData) {
+    await Promise.all([
+      formData.firstName &&
+        this.letsTalkFormSection.fillField('First Name', formData.firstName),
+      formData.lastName &&
+        this.letsTalkFormSection.fillField('Last Name', formData.lastName),
+      formData.company &&
+        this.letsTalkFormSection.fillField('Company', formData.company),
+      formData.email &&
+        this.letsTalkFormSection.fillField('Email', formData.email),
+      formData.jobTitle &&
+        this.letsTalkFormSection.fillField('Job Title', formData.jobTitle),
+      formData.phoneNumber &&
+        this.letsTalkFormSection.fillField(
+          'Phone number',
+          formData.phoneNumber
+        ),
+      formData.comments &&
+        this.letsTalkFormSection.fillField('Comments', formData.comments),
+    ]);
+  }
 
-    /**
-     * Fills the contact form with the provided data
-     * @param formData - Object containing form field values
-     */
-    async fillForm(formData: { 
-        firstName: string; 
-        lastName: string; 
-        company: string; 
-        email: string; 
-    }) {
-        const iframe = await this.getContactFormIframe();
-        await iframe.locator('input[name="firstname"]').waitFor({ state: 'visible'});
+  async getErrorCount(): Promise<number> {
+    const errorContainer = await this.letsTalkFormSection.getFormErrors();
+    const actualErrors = await errorContainer.allTextContents();
 
-        const fieldMap = {
-            firstName: 'input[name="firstname"]',
-            lastName: 'input[name="lastname"]',
-            company: 'input[name="company"]',
-            email: 'input[name="email"]'
-        };
+    return actualErrors.length;
+  }
 
-        for (const [key, selector] of Object.entries(fieldMap)) {
-            const value = formData[key as keyof typeof formData];
-            await iframe.locator(selector).fill(value);
-        }
-    }
+  async getFieldError(fieldName: FormField): Promise<string | null> {
+    const fieldError = await this.letsTalkFormSection.getFieldError(fieldName);
+    await fieldError.waitFor({ state: 'visible', timeout: 3000 });
+    const errorText = await fieldError.textContent();
+    return errorText?.trim() || null;
+  }
 
-    /**
-     * Submits the contact form
-     */
-    async submit() {
-        const iframe = await this.getContactFormIframe();
-        await iframe.locator('input[type="submit"]').click();
-    }
-
-    /**
-     * Validates that error messages are displayed and contain expected text
-     * @param expectedMessages - Array of expected error message texts
-     */
-    async expectErrorMessages(expectedMessages: string[]) {
-        const iframe = await this.getContactFormIframe();
-        const errorMessages = iframe.locator('.hs-error-msgs');
-        
-        await errorMessages.first().waitFor({ state: 'visible', timeout: 10000 });
-        expect(await errorMessages.count()).toBeGreaterThan(0);
-
-        // Log all error messages for debugging
-        const errorCount = await errorMessages.count();
-        for (let i = 0; i < errorCount; i++) {
-            console.log(`Error ${i + 1}: ${await errorMessages.nth(i).textContent()}`);
-        }
-
-        // Check if any error contains expected text
-        for (const msg of expectedMessages) {
-            if (await errorMessages.filter({ hasText: msg }).count() > 0) {
-                return expect(true).toBe(true);
-            }
-        }
-        expect(false).toBe(true);
-    }
+  async clickSubmitButton() {
+    await this.letsTalkFormSection.submit();
+  }
 }

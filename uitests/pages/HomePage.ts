@@ -7,8 +7,12 @@ export class HomePage {
 
   constructor(page: Page) {
     this.page = page;
-    this.whoWeServeDropdown = this.page.getByRole('link', { name: 'Who We Serve' });
-    this.financialServicesLink = this.page.getByRole('listitem').getByRole('link', { name: 'Financial Services' });
+    this.whoWeServeDropdown = this.page.getByRole('link', {
+      name: 'Who We Serve',
+    });
+    this.financialServicesLink = this.page
+      .getByRole('listitem')
+      .getByRole('link', { name: 'Financial Services' });
   }
 
   async goto() {
