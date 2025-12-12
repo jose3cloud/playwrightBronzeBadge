@@ -32,19 +32,18 @@ test('3Cloud Contact Form Error Validation', async ({
   });
 
   await test.step('Verify error messages are displayed', async () => {
-    expect(await letsTalkPage.getErrorCount()).toBeGreaterThan(0);
+    // Verify that we get validation errors (at least 3 for the originally required fields)
+    const actualErrorCount = await letsTalkPage.getErrorCount();
+    expect(actualErrorCount).toBeGreaterThanOrEqual(3);
 
-    const [jobTitleError, phoneNumberError, commentsError] = await Promise.all([
-      letsTalkPage.getFieldError('Job Title'),
-      letsTalkPage.getFieldError('Phone number'),
-      letsTalkPage.getFieldError('Comments'),
-    ]);
-
-    const hasExpectedMessage = [
-      jobTitleError,
-      phoneNumberError,
-      commentsError,
-    ].some(error => error?.includes('Please complete this required field'));
-    expect(hasExpectedMessage).toBe(true);
+    // Verify field-specific error messages for the required fields
+    const requiredFields = ['Job Title', 'Phone number', 'Comments'];
+    
+    for (const field of requiredFields) {
+      await test.step(`Verify ${field} field error`, async () => {
+        const fieldError = await letsTalkPage.getFieldError(field as any);
+        expect(fieldError).toContain('Please complete this required field');
+      });
+    }
   });
 });

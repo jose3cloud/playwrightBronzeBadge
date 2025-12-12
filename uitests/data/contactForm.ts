@@ -1,3 +1,5 @@
+import contactFormConfig from './contactForm.json';
+
 // Contact Form Data Interface
 export interface ContactFormData {
   firstName: string;
@@ -9,16 +11,5 @@ export interface ContactFormData {
   comments: string;
 }
 
-// Contact Form Test Data
-export const CONTACT_FORM_DATA = {
-  // Incomplete data for validation error testing
-  incomplete: {
-    firstName: 'John',
-    lastName: 'Doe',
-    company: 'TestCo',
-    email: 'john@test.com',
-    jobTitle: '',
-    phoneNumber: '',
-    comments: '',
-  },
-};
+// Test Data
+export const CONTACT_FORM_DATA = contactFormConfig.testData;

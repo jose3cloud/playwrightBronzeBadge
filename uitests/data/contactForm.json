@@ -1,0 +1,31 @@
+{
+  "testData": {
+    "incomplete": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "company": "TestCo",
+      "email": "john@test.com",
+      "jobTitle": "",
+      "phoneNumber": "",
+      "comments": ""
+    },
+    "valid": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "company": "TestCo",
+      "email": "john.doe@test.com",
+      "jobTitle": "Software Engineer",
+      "phoneNumber": "555-123-4567",
+      "comments": "This is a test comment for the contact form."
+    },
+    "invalidEmail": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "company": "TestCo",
+      "email": "invalid-email",
+      "jobTitle": "Software Engineer",
+      "phoneNumber": "555-123-4567",
+      "comments": "This is a test comment for the contact form."
+    }
+  }
+}

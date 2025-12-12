@@ -44,10 +44,15 @@ export class LetsTalkPage {
   }
 
   async getFieldError(fieldName: FormField): Promise<string | null> {
-    const fieldError = await this.letsTalkFormSection.getFieldError(fieldName);
-    await fieldError.waitFor({ state: 'visible', timeout: 3000 });
-    const errorText = await fieldError.textContent();
-    return errorText?.trim() || null;
+    try {
+      const fieldError = await this.letsTalkFormSection.getFieldError(fieldName);
+      await fieldError.waitFor({ state: 'visible', timeout: 5000 });
+      const errorText = await fieldError.textContent();
+      return errorText?.trim() || null;
+    } catch (error) {
+      console.log(`Could not find error for field: ${fieldName}`);
+      return null;
+    }
   }
 
   async clickSubmitButton() {
