@@ -15,25 +15,25 @@ export class LetsTalkPage {
   }
 
   async fillForm(formData: ContactFormData) {
-    await Promise.all([
-      formData.firstName &&
-        this.letsTalkFormSection.fillField('First Name', formData.firstName),
-      formData.lastName &&
-        this.letsTalkFormSection.fillField('Last Name', formData.lastName),
-      formData.company &&
-        this.letsTalkFormSection.fillField('Company', formData.company),
-      formData.email &&
-        this.letsTalkFormSection.fillField('Email', formData.email),
-      formData.jobTitle &&
-        this.letsTalkFormSection.fillField('Job Title', formData.jobTitle),
-      formData.phoneNumber &&
-        this.letsTalkFormSection.fillField(
+    // await Promise.all([
+      // formData.firstName &&
+        await this.letsTalkFormSection.fillField('First Name', formData.firstName),
+      // formData.lastName &&
+      await this.letsTalkFormSection.fillField('Last Name', formData.lastName),
+      // formData.company &&
+      await this.letsTalkFormSection.fillField('Company', formData.company),
+      // formData.email &&
+      await this.letsTalkFormSection.fillField('Email', formData.email),
+      // formData.jobTitle &&
+      await this.letsTalkFormSection.fillField('Job Title', formData.jobTitle),
+      // formData.phoneNumber &&
+      await this.letsTalkFormSection.fillField(
           'Phone number',
           formData.phoneNumber
         ),
-      formData.comments &&
-        this.letsTalkFormSection.fillField('Comments', formData.comments),
-    ]);
+      // formData.comments &&
+      await this.letsTalkFormSection.fillField('Comments', formData.comments)
+    // ]);
   }
 
   async getErrorCount(): Promise<number> {

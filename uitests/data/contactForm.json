@@ -1,9 +1,9 @@
 {
   "testData": {
     "incomplete": {
-      "firstName": "John",
+      "firstName": "",
       "lastName": "Doe",
-      "company": "TestCo",
+      "company": "",
       "email": "john@test.com",
       "jobTitle": "",
       "phoneNumber": "",

@@ -34,10 +34,10 @@ test('3Cloud Contact Form Error Validation', async ({
   await test.step('Verify error messages are displayed', async () => {
     // Verify that we get validation errors (at least 3 for the originally required fields)
     const actualErrorCount = await letsTalkPage.getErrorCount();
-    expect(actualErrorCount).toBeGreaterThanOrEqual(3);
+    expect(actualErrorCount).toEqual(5);
 
     // Verify field-specific error messages for the required fields
-    const requiredFields = ['Job Title', 'Phone number', 'Comments'];
+    const requiredFields = ['First Name','Company','Job Title', 'Phone number', 'Comments'];
     
     for (const field of requiredFields) {
       await test.step(`Verify ${field} field error`, async () => {
