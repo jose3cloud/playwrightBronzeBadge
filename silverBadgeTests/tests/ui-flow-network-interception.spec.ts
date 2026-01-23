@@ -1,10 +1,9 @@
 import { test, expect } from '../fixtures/silverBadgeFixtures';
 import { LOGIN_DATA } from '../data/loginData';
+import { uniqueEmail } from '../utils/helpers';
+import { defaultPassword } from '../utils/constants';
 
 const loginPathRegex = /\/(users\/login|login|user\/login)/i;
-
-// Cross-browser runs against a public demo site can be slow.
-test.describe.configure({ timeout: 90_000 });
 
 test('UI Flow: Navigate to target page', async ({ loginPage }) => {
   await test.step('Navigate to target page', async () => {
@@ -34,9 +33,10 @@ test('UI Flow: Perform a user action (login submit)', async ({ loginPage, page }
 test('UI Flow: Perform a user action (form submission - sign up)', async ({
   loginPage,
   contactListPage,
+  signUpPage,
   page,
 }) => {
-  const uniqueEmail = `sb_${Date.now()}_${Math.floor(Math.random() * 100000)}@example.com`;
+  const email = uniqueEmail('sb_signup');
 
   await test.step('Navigate to target page', async () => {
     await loginPage.goto();
@@ -53,37 +53,33 @@ test('UI Flow: Perform a user action (form submission - sign up)', async ({
   });
 
   await test.step('Perform user action (submit Sign Up form)', async () => {
-    const firstName = page.locator('#firstName').or(page.getByPlaceholder(/first name/i));
-    const lastName = page.locator('#lastName').or(page.getByPlaceholder(/last name/i));
-    const email = page.locator('#email').or(page.getByPlaceholder(/^email$/i));
-    const password = page.locator('#password').or(page.getByPlaceholder(/password/i));
-    const submit = page.locator('#submit').or(page.getByRole('button', { name: /submit|sign up|register/i }));
-
-    await firstName.fill('Silver');
-    await lastName.fill('Badge');
-    await email.fill(uniqueEmail);
-    await password.fill('P@ssw0rd123!');
+    await signUpPage.fillForm({
+      firstName: 'Silver',
+      lastName: 'Badge',
+      email,
+      password: defaultPassword,
+    });
 
     // Ensure fields were actually filled and the UI is ready to submit.
-    await expect(firstName).toHaveValue('Silver');
-    await expect(lastName).toHaveValue('Badge');
-    await expect(email).toHaveValue(uniqueEmail);
-    await expect(password).toHaveValue('P@ssw0rd123!');
-    await expect(submit).toBeEnabled();
+    await expect(signUpPage.firstNameInput).toHaveValue('Silver');
+    await expect(signUpPage.lastNameInput).toHaveValue('Badge');
+    await expect(signUpPage.emailInput).toHaveValue(email);
+    await expect(signUpPage.passwordInput).toHaveValue(defaultPassword);
+    await expect(signUpPage.submitButton).toBeEnabled();
 
     // The public demo site can be flaky; focus this test on the UI action itself.
     // (Network interception requirements are covered by dedicated interception tests below.)
-    await submit.click();
+    await signUpPage.submit();
   });
 
   await test.step('Basic UI assertion after action', async () => {
     // The public demo site can be flaky under parallel cross-browser load.
     // Assert we stayed on Sign Up or navigated to the Contact List.
-    await expect(page).toHaveURL(/(addUser|contactList)/i, { timeout: 60_000 });
+    await expect(page).toHaveURL(/(addUser|contactList)/i);
 
     // If we made it to the Contact List, assert a key UI element.
     if (/contactList/i.test(page.url())) {
-      await expect(contactListPage.addContactButton).toBeVisible({ timeout: 60_000 });
+      await expect(contactListPage.addContactButton).toBeVisible();
     }
   });
 });
@@ -92,19 +88,19 @@ test('UI Flow: Intercept the network request triggered by the action', async ({
   loginPage,
   page,
 }) => {
+  let loginReq: Awaited<ReturnType<typeof page.waitForRequest>> | null = null;
+
   await test.step('Navigate + perform action', async () => {
-    const loginReqPromise = page.waitForRequest(
-      (r) => loginPathRegex.test(r.url()) && r.method() === 'POST',
-      { timeout: 60_000 }
-    );
+    const loginReqPromise = page.waitForRequest((r) => loginPathRegex.test(r.url()) && r.method() === 'POST');
     await loginPage.goto();
     await loginPage.login(LOGIN_DATA.valid.email, LOGIN_DATA.valid.password);
-    await loginReqPromise;
+    loginReq = await loginReqPromise;
   });
 
   await test.step('Assert we intercepted the request', async () => {
-    // If we reached this step, `page.waitForRequest(...)` above resolved.
-    expect(true).toBe(true);
+    expect(loginReq).not.toBeNull();
+    expect(loginReq!.method()).toBe('POST');
+    expect(loginReq!.url()).toMatch(loginPathRegex);
   });
 });
 
@@ -112,17 +108,13 @@ test('UI Flow: Validate the intercepted request payload', async ({ loginPage, pa
   const interceptedRequest: {
     url: string;
     method: string;
-    headers: Record<string, string>;
     postData: string | null;
-  } = { url: '', method: '', headers: {}, postData: null };
+  } = { url: '', method: '', postData: null };
 
   let capturedRequest: Awaited<ReturnType<typeof page.waitForRequest>> | null = null;
 
   await test.step('Navigate + perform action', async () => {
-    const reqPromise = page.waitForRequest(
-      (r) => loginPathRegex.test(r.url()) && r.method() === 'POST',
-      { timeout: 60_000 }
-    );
+    const reqPromise = page.waitForRequest((r) => loginPathRegex.test(r.url()) && r.method() === 'POST');
     await loginPage.goto();
     await loginPage.login(LOGIN_DATA.valid.email, LOGIN_DATA.valid.password);
     capturedRequest = await reqPromise;
@@ -133,7 +125,6 @@ test('UI Flow: Validate the intercepted request payload', async ({ loginPage, pa
     const req = capturedRequest!;
     interceptedRequest.url = req.url();
     interceptedRequest.method = req.method();
-    interceptedRequest.headers = req.headers();
     interceptedRequest.postData = req.postData();
 
     expect(interceptedRequest.method).toBe('POST');

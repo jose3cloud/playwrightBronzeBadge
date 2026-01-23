@@ -16,12 +16,13 @@ export class LoginPage {
 
   async goto() {
     const baseURL = process.env.CONTACT_LIST_BASE_URL || 'https://thinking-tester-contact-list.herokuapp.com';
-    // Avoid `networkidle` on public demo sites (can be flaky due to background requests).
-    // Instead, wait for a deterministic UI-ready signal.
+    
     await this.page.goto(baseURL, { waitUntil: 'domcontentloaded' });
-    await this.emailInput.waitFor({ state: 'visible' });
-    await this.passwordInput.waitFor({ state: 'visible' });
-    await this.submitButton.waitFor({ state: 'visible' });
+    await Promise.all([
+      this.emailInput.waitFor({ state: 'visible' }),
+      this.passwordInput.waitFor({ state: 'visible' }),
+      this.submitButton.waitFor({ state: 'visible' }),
+    ]);
   }
 
   async fillEmail(email: string) {

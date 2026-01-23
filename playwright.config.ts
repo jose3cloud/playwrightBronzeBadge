@@ -17,12 +17,22 @@ const commonLaunchArgs = [
   '--disable-renderer-backgrounding',
 ];
 
+// Silver Badge timeout constants
+const SILVER_BASE_TIMEOUT_MS = 60_000;
+const SILVER_EXPECT_TIMEOUT_MS = SILVER_BASE_TIMEOUT_MS;
+const SILVER_ACTION_TIMEOUT_MS = SILVER_BASE_TIMEOUT_MS;
+const SILVER_ACTION_TIMEOUT_WEBKIT_MS = SILVER_BASE_TIMEOUT_MS * 2;
+const SILVER_NAVIGATION_TIMEOUT_MS = 90_000;
+const SILVER_NAVIGATION_TIMEOUT_WEBKIT_MS = SILVER_ACTION_TIMEOUT_WEBKIT_MS;
+
 // Silver Badge settings
 const silverBadgeSettings = {
   headless: true,
   screenshot: 'only-on-failure' as const,
   video: 'retain-on-failure' as const,
   baseURL: process.env.CONTACT_LIST_BASE_URL || 'https://thinking-tester-contact-list.herokuapp.com',
+  actionTimeout: SILVER_ACTION_TIMEOUT_MS,
+  navigationTimeout: SILVER_NAVIGATION_TIMEOUT_MS,
 };
 
 // Detect when the Silver Badge project is being run, so we can scope
@@ -82,6 +92,8 @@ const config: PlaywrightTestConfig = {
     {
       name: 'silver-badge-chromium',
       testDir: './silverBadgeTests/tests',
+      timeout: 90_000,
+      expect: { timeout: SILVER_EXPECT_TIMEOUT_MS },
       use: {
         ...silverBadgeSettings,
         browserName: 'chromium',
@@ -93,6 +105,8 @@ const config: PlaywrightTestConfig = {
     {
       name: 'silver-badge-firefox',
       testDir: './silverBadgeTests/tests',
+      timeout: 90_000,
+      expect: { timeout: SILVER_EXPECT_TIMEOUT_MS },
       use: {
         ...silverBadgeSettings,
         browserName: 'firefox',
@@ -101,9 +115,13 @@ const config: PlaywrightTestConfig = {
     {
       name: 'silver-badge-webkit',
       testDir: './silverBadgeTests/tests',
+      timeout: 180_000,
+      expect: { timeout: SILVER_EXPECT_TIMEOUT_MS },
       use: {
         ...silverBadgeSettings,
         browserName: 'webkit',
+        actionTimeout: SILVER_ACTION_TIMEOUT_WEBKIT_MS,
+        navigationTimeout: SILVER_NAVIGATION_TIMEOUT_WEBKIT_MS,
         launchOptions: {
           args: commonLaunchArgs,
         },
