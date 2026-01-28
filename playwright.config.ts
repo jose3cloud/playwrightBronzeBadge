@@ -48,10 +48,9 @@ const config: PlaywrightTestConfig = {
   fullyParallel: isSilverRun,
   retries: isSilverRun ? (process.env.CI ? 2 : 1) : 0,
   // Workers strategy:
-  // - CI: cap at 2
-  // - local single-project: use 5
-  // - local multi-project (e.g., all 3 browsers at once): reduce to 2 to avoid overloading the public demo app
-  workers: isSilverRun ? (process.env.CI ? 2 : isMultiSilverProjectRun ? 2 : 5) : undefined,
+  // - CI: cap at 5
+  // - local: use 10 (single or multi-project)
+  workers: isSilverRun ? (process.env.CI ? 5 : 10) : undefined,
   use: {
     ...commonSettings,
     browserName: 'chromium',

@@ -9,8 +9,8 @@ export class ContactListPage {
     this.page = page;
     // Try multiple selectors for robustness
     this.addContactButton = this.page
-      .locator('#add-contact')
-      .or(this.page.getByRole('button', { name: /add contact|new contact/i }));
+      .getByRole('button', { name: /add contact|new contact/i })
+      .or(this.page.locator('#add-contact'));
     // The demo app renders contacts in a <table> without a stable id.
     this.contactList = this.page.getByRole('table').or(this.page.locator('table'));
   }

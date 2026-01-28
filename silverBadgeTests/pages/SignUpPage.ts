@@ -10,11 +10,11 @@ export class SignUpPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.firstNameInput = this.page.locator('#firstName').or(this.page.getByPlaceholder(/first name/i));
-    this.lastNameInput = this.page.locator('#lastName').or(this.page.getByPlaceholder(/last name/i));
-    this.emailInput = this.page.locator('#email').or(this.page.getByPlaceholder(/^email$/i));
-    this.passwordInput = this.page.locator('#password').or(this.page.getByPlaceholder(/password/i));
-    this.submitButton = this.page.locator('#submit').or(this.page.getByRole('button', { name: /submit|sign up|register/i }));
+    this.firstNameInput = this.page.getByPlaceholder(/first name/i).or(this.page.locator('#firstName'));
+    this.lastNameInput = this.page.getByPlaceholder(/last name/i).or(this.page.locator('#lastName'));
+    this.emailInput = this.page.getByPlaceholder(/^email$/i).or(this.page.locator('#email'));
+    this.passwordInput = this.page.getByPlaceholder(/password/i).or(this.page.locator('#password'));
+    this.submitButton = this.page.getByRole('button', { name: /submit|sign up|register/i }).or(this.page.locator('#submit'));
   }
 
   async fillForm(params: { firstName: string; lastName: string; email: string; password: string }) {

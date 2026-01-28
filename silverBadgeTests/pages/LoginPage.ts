@@ -9,9 +9,9 @@ export class LoginPage {
   constructor(page: Page) {
     this.page = page;
     // Try multiple selectors for robustness
-    this.emailInput = this.page.locator('#email').or(this.page.getByPlaceholder(/email/i));
-    this.passwordInput = this.page.locator('#password').or(this.page.getByPlaceholder(/password/i));
-    this.submitButton = this.page.locator('#submit').or(this.page.getByRole('button', { name: /submit|login|sign in/i }));
+    this.emailInput = this.page.getByPlaceholder(/email/i).or(this.page.locator('#email'));
+    this.passwordInput = this.page.getByPlaceholder(/password/i).or(this.page.locator('#password'));
+    this.submitButton = this.page.getByRole('button', { name: /submit|login|sign in/i }).or(this.page.locator('#submit'));
   }
 
   async goto() {
@@ -25,24 +25,9 @@ export class LoginPage {
     ]);
   }
 
-  async fillEmail(email: string) {
-    await this.emailInput.waitFor({ state: 'visible' });
-    await this.emailInput.fill(email);
-  }
-
-  async fillPassword(password: string) {
-    await this.passwordInput.waitFor({ state: 'visible' });
-    await this.passwordInput.fill(password);
-  }
-
-  async clickSubmit() {
-    await this.submitButton.waitFor({ state: 'visible' });
-    await this.submitButton.click();
-  }
-
   async login(email: string, password: string) {
-    await this.fillEmail(email);
-    await this.fillPassword(password);
-    await this.clickSubmit();
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    await this.submitButton.click();
   }
 }

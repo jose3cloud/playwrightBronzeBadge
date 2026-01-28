@@ -2,6 +2,7 @@ import { test, expect } from '../fixtures/silverBadgeFixtures';
 import { LOGIN_DATA } from '../data/loginData';
 import { uniqueEmail } from '../utils/helpers';
 import { defaultPassword } from '../utils/constants';
+import { API_SIGNUP_TEST_USER } from '../data/testUserData';
 
 const loginPathRegex = /\/(users\/login|login|user\/login)/i;
 
@@ -54,15 +55,15 @@ test('UI Flow: Perform a user action (form submission - sign up)', async ({
 
   await test.step('Perform user action (submit Sign Up form)', async () => {
     await signUpPage.fillForm({
-      firstName: 'Silver',
-      lastName: 'Badge',
+      firstName: API_SIGNUP_TEST_USER.firstName,
+      lastName: API_SIGNUP_TEST_USER.lastName,
       email,
       password: defaultPassword,
     });
 
     // Ensure fields were actually filled and the UI is ready to submit.
-    await expect(signUpPage.firstNameInput).toHaveValue('Silver');
-    await expect(signUpPage.lastNameInput).toHaveValue('Badge');
+    await expect(signUpPage.firstNameInput).toHaveValue(API_SIGNUP_TEST_USER.firstName);
+    await expect(signUpPage.lastNameInput).toHaveValue(API_SIGNUP_TEST_USER.lastName);
     await expect(signUpPage.emailInput).toHaveValue(email);
     await expect(signUpPage.passwordInput).toHaveValue(defaultPassword);
     await expect(signUpPage.submitButton).toBeEnabled();
