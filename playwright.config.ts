@@ -8,8 +8,8 @@ const commonSettings = {
   baseURL: 'https://3cloudsolutions.com',
 };
 
-// Common launch arguments for Chromium and WebKit
-const commonLaunchArgs = [
+// Chromium-specific launch arguments (not supported by WebKit)
+const chromiumLaunchArgs = [
   '--disable-web-security',
   '--disable-features=VizDisplayCompositor',
   '--disable-background-timer-throttling',
@@ -64,7 +64,7 @@ const config: PlaywrightTestConfig = {
         ...commonSettings,
         browserName: 'chromium',
         launchOptions: {
-          args: commonLaunchArgs,
+          args: chromiumLaunchArgs,
         },
       },
     },
@@ -82,9 +82,6 @@ const config: PlaywrightTestConfig = {
       use: {
         ...commonSettings,
         browserName: 'webkit',
-        launchOptions: {
-          args: commonLaunchArgs,
-        },
       },
     },
     // Silver Badge Project
@@ -97,7 +94,7 @@ const config: PlaywrightTestConfig = {
         ...silverBadgeSettings,
         browserName: 'chromium',
         launchOptions: {
-          args: commonLaunchArgs,
+          args: chromiumLaunchArgs,
         },
       },
     },
@@ -121,9 +118,6 @@ const config: PlaywrightTestConfig = {
         browserName: 'webkit',
         actionTimeout: SILVER_ACTION_TIMEOUT_WEBKIT_MS,
         navigationTimeout: SILVER_NAVIGATION_TIMEOUT_WEBKIT_MS,
-        launchOptions: {
-          args: commonLaunchArgs,
-        },
       },
     },
   ],
