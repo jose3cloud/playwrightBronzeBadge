@@ -1,8 +1,8 @@
-import { test, expect } from '../fixtures/silverBadgeFixtures';
-import { LOGIN_DATA } from '../data/loginData';
-import { uniqueEmail } from '../utils/helpers';
-import { defaultPassword } from '../utils/constants';
-import { API_SIGNUP_TEST_USER } from '../data/testUserData';
+import { test, expect } from '@pw-silver/fixtures/silverBadgeFixtures';
+import { LOGIN_DATA } from '@pw-silver/data/loginData';
+import { uniqueEmail } from '@pw-silver/utils/helpers';
+import { defaultPassword } from '@pw-silver/utils/constants';
+import { API_SIGNUP_TEST_USER } from '@pw-silver/data/testUserData';
 
 const loginPathRegex = /\/(users\/login|login|user\/login)/i;
 

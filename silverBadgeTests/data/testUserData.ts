@@ -1,4 +1,4 @@
-import type { CreateUserParams, CreateContactParams } from '../utils/types';
+import type { CreateUserParams, CreateContactParams } from '@pw-silver/utils/types';
 
 // Test User Data for UI tests
 export const ADD_CONTACT_TEST_USER = {

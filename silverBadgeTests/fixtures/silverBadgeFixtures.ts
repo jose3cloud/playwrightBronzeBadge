@@ -1,8 +1,8 @@
 import { test as baseTest } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { ContactListPage } from '../pages/ContactListPage';
-import { SignUpPage } from '../pages/SignUpPage';
-import { AddContactPage } from '../pages/AddContactPage';
+import { LoginPage } from '@pw-silver/pages/LoginPage';
+import { ContactListPage } from '@pw-silver/pages/ContactListPage';
+import { SignUpPage } from '@pw-silver/pages/SignUpPage';
+import { AddContactPage } from '@pw-silver/pages/AddContactPage';
 
 // Define test fixture types for Silver Badge tests
 type SilverBadgeTestFixtures = {

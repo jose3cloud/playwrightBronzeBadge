@@ -1,7 +1,7 @@
 import { APIRequestContext, expect } from '@playwright/test';
-import { SignUpResponse, CreateUserParams } from '../utils/types';
-import { uniqueEmail } from '../utils/helpers';
-import { defaultPassword } from '../utils/constants';
+import { SignUpResponse, CreateUserParams } from '@pw-silver/utils/types';
+import { uniqueEmail } from '@pw-silver/utils/helpers';
+import { defaultPassword } from '@pw-silver/utils/constants';
 
 /**
  * Creates a user via API and returns the response body.

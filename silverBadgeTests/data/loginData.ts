@@ -1,9 +1,3 @@
-// Login Data Interface
-export interface LoginData {
-  email: string;
-  password: string;
-}
-
 // Test Data
 export const LOGIN_DATA = {
   valid: {

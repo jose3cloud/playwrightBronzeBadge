@@ -1,8 +1,7 @@
-import { test, expect } from '../fixtures/silverBadgeFixtures';
-import { createUserViaAPI } from '../api/userApi';
-import { uniqueEmail } from '../utils/helpers';
-import { defaultPassword } from '../utils/constants';
-import { createAddContactUserParams, createAddContactFormParams } from '../data/testUserData';
+import { test, expect } from '@pw-silver/fixtures/silverBadgeFixtures';
+import { uniqueEmail, createUserWithUniqueEmail } from '@pw-silver/utils/helpers';
+import { defaultPassword } from '@pw-silver/utils/constants';
+import { createAddContactUserParams, createAddContactFormParams } from '@pw-silver/data/testUserData';
 
 test('UI Flow: Add a New Contact (UI form submission)', async ({
   request,
@@ -17,9 +16,8 @@ test('UI Flow: Add a New Contact (UI form submission)', async ({
 
   await test.step('Create user via API', async () => {
     // Create a fresh user via API so UI login is deterministic
-    userEmail = uniqueEmail('sb_add_contact_user');
-    const addContactUserParams = createAddContactUserParams(userEmail);
-    await createUserViaAPI(request, addContactUserParams);
+    const result = await createUserWithUniqueEmail(request, createAddContactUserParams, 'sb_add_contact_user');
+    userEmail = result.email;
   });
 
   await test.step('Login via UI', async () => {

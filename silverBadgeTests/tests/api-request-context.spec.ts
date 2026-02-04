@@ -1,8 +1,7 @@
-import { test, expect } from '../fixtures/silverBadgeFixtures';
-import { createUserViaAPI } from '../api/userApi';
-import { createContactPayload, uniqueEmail } from '../utils/helpers';
-import { validateSignUpResponse, validateContact } from '../validators/responseValidators';
-import { defaultPassword } from '../utils/constants';
+import { test, expect } from '@pw-silver/fixtures/silverBadgeFixtures';
+import { createContactPayload, uniqueEmail, createUserWithUniqueEmail } from '@pw-silver/utils/helpers';
+import { assertSignUpResponse, assertContact } from '@pw-silver/asserts/assertResponse';
+import { defaultPassword } from '@pw-silver/utils/constants';
 import {
   createApiSignUpUserParams,
   createApiContactUserParams,
@@ -10,15 +9,17 @@ import {
   createApiChainUserParams,
   createApiChainContactParams,
   API_SIGNUP_TEST_USER,
-} from '../data/testUserData';
-import type { Contact } from '../utils/types';
+} from '@pw-silver/data/testUserData';
+import type { Contact } from '@pw-silver/utils/types';
 
 test('API: Use request context to sign up user + validate schema/status/key fields', async ({ request }) => {
-  const email = uniqueEmail('sb_signup');
-  const apiSignUpUserParams = createApiSignUpUserParams(email);
-  const body = await createUserViaAPI(request, apiSignUpUserParams);
+  const { email, signUpResponse: body } = await createUserWithUniqueEmail(
+    request,
+    createApiSignUpUserParams,
+    'sb_signup'
+  );
 
-  validateSignUpResponse(body, {
+  assertSignUpResponse(body, {
     firstName: API_SIGNUP_TEST_USER.firstName,
     lastName: API_SIGNUP_TEST_USER.lastName,
     email,
@@ -26,9 +27,11 @@ test('API: Use request context to sign up user + validate schema/status/key fiel
 });
 
 test('API: Create contact via API + validate schema/status/key fields', async ({ request }) => {
-  const email = uniqueEmail('sb_user');
-  const apiContactUserParams = createApiContactUserParams(email);
-  const signUpBody = await createUserViaAPI(request, apiContactUserParams);
+  const { signUpResponse: signUpBody } = await createUserWithUniqueEmail(
+    request,
+    createApiContactUserParams,
+    'sb_user'
+  );
 
   // Contact API enforces max length 20 for lastName
   const contactLastName = `Created${Math.floor(Math.random() * 10000)}`;
@@ -44,7 +47,7 @@ test('API: Create contact via API + validate schema/status/key fields', async ({
   expect(createRes.status(), await createRes.text()).toBe(201);
   const created = (await createRes.json()) as Contact;
 
-  validateContact(created, {
+  assertContact(created, {
     firstName: contactPayload.firstName,
     lastName: contactPayload.lastName,
     email: contactPayload.email,
@@ -59,9 +62,11 @@ test('API → UI: Create contact via API, then verify it appears in UI', async (
   page,
 }) => {
   // 1) Create user via API
-  const email = uniqueEmail('sb_chain_user');
-  const apiChainUserParams = createApiChainUserParams(email);
-  const signUpBody = await createUserViaAPI(request, apiChainUserParams);
+  const { email, signUpResponse: signUpBody } = await createUserWithUniqueEmail(
+    request,
+    createApiChainUserParams,
+    'sb_chain_user'
+  );
 
   // 2) Create contact via API
   const contactFirstName = 'ApiChain';
