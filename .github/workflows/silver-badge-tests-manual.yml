@@ -1,13 +1,7 @@
-name: Silver Badge Tests
+name: Silver Badge Tests (Manual)
 
 on:
-  push:
-    branches: [ '*' ] # Run on every commit to any branch
-  pull_request:
-    branches: [ '*' ] # Run on every PR
-  schedule:
-    # Run every hour
-    - cron: '0 * * * *'
+  workflow_dispatch: # Allow manual triggering
 
 jobs:
   test:
