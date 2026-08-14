@@ -1,7 +1,7 @@
 name: Silver Badge Tests (Manual)
 
 on:
-  workflow_dispatch: # Allow manual triggering
+  workflow_dispatch:
 
 jobs:
   test:
@@ -22,8 +22,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Get Playwright version
+        id: pw-version
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.pw-version.outputs.version }}
+
+      - name: Install Playwright OS dependencies
+        run: npx playwright install-deps
+
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install
 
       - name: Run Silver Badge tests
         run: npm run test:silver

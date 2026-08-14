@@ -26,16 +26,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+      - name: Get Playwright version
+        id: pw-version
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
 
-      # Quality gate: fail the build early on critical/smoke failures
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.pw-version.outputs.version }}
+
+      # OS libs every run (not in browser cache); browsers only when cache misses
+      - name: Install Playwright OS dependencies
+        run: npx playwright install-deps
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install
+
       - name: Quality gate — smoke (@smoke on Chromium)
         run: npm run test:gold:smoke
         env:
           CI: true
 
-      # Parallel across Chromium / Firefox / WebKit via Playwright projects
       - name: Run Gold Badge tests (all browsers)
         run: npm run test:gold
         env:
