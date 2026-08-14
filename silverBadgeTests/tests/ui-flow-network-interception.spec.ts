@@ -21,11 +21,13 @@ test('UI Flow: Perform a user action (login submit)', async ({ loginPage, page }
   });
 
   await test.step('Perform user action (submit login form)', async () => {
-    await loginPage.login(LOGIN_DATA.valid.email, LOGIN_DATA.valid.password);
+    // Intentionally invalid — this test asserts submit UX, not successful auth.
+    // Do not use LOGIN_DATA.valid (env may hold real creds and navigate away).
+    await loginPage.login('invalid-login@example.com', 'WrongPassword!');
   });
 
   await test.step('Basic UI assertion after action', async () => {
-    // With default sample creds, login will fail and we should remain on login form.
+    // Failed login should keep the user on the login form.
     await expect(loginPage.emailInput).toBeVisible();
     await expect(page).toHaveURL(/thinking-tester-contact-list|herokuapp/i);
   });

@@ -23,9 +23,12 @@ export const test = baseTest.extend<GoldFixtures>({
 
   seededContact: async ({ request }, use) => {
     const seeded = await createUserWithContact(request);
-    await use(seeded);
-    // Teardown: delete user (API cascades contacts)
-    await deleteUser(request, seeded.user.token);
+    try {
+      await use(seeded);
+    } finally {
+      // Teardown: delete user (API cascades contacts)
+      await deleteUser(request, seeded.user.token);
+    }
   },
 });
 
