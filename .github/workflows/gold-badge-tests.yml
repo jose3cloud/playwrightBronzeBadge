@@ -9,7 +9,7 @@ on:
 
 jobs:
   gold-tests:
-    name: Gold Badge (smoke gate + full suite)
+    name: Gold Badge (all browsers)
     runs-on: ubuntu-latest
     timeout-minutes: 40
     # Browsers + OS deps preinstalled — no install-deps / playwright install steps
@@ -23,15 +23,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Cache node_modules
+        id: npm-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+
       - name: Install dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Quality gate — smoke (@smoke on Chromium)
-        run: npm run test:gold:smoke
-        env:
-          CI: true
-
-      - name: Run Gold Badge tests (all browsers)
+      - name: Run Gold Badge tests (Chromium, Firefox, WebKit)
         run: npm run test:gold
         env:
           CI: true
