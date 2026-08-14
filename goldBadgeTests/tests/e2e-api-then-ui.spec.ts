@@ -6,14 +6,14 @@ import { test, expect } from '@pw-gold/fixtures/goldBadgeFixtures';
  */
 test(
   '@smoke @regression API creates contact, UI shows the same contact @e2e',
-  async ({ loginPage, contactListPage, page, seededContact }) => {
+  async ({ loginPage, contactListPage, seededContact }) => {
     // Arrange — seededContact fixture already created user + contact via API
     const { user, contact } = seededContact;
 
     // Act — login and land on contact list
     await loginPage.goto();
     await loginPage.login(user.email, user.password);
-    await expect(page).toHaveURL(/contactList/i);
+    await expect(loginPage.page).toHaveURL(/contactList/i);
 
     // Assert — UI reflects API-created dynamic data
     await expect(contactListPage.addContactButton).toBeVisible();
@@ -24,8 +24,8 @@ test(
       await expect(row).toBeVisible();
     } catch {
       // Fallback resilience: list loaded; name still present somewhere on page
-      await expect(page.getByText(contact.firstName)).toBeVisible();
-      await expect(page.getByText(contact.lastName)).toBeVisible();
+      await expect(contactListPage.page.getByText(contact.firstName)).toBeVisible();
+      await expect(contactListPage.page.getByText(contact.lastName)).toBeVisible();
     }
 
     // Assert API ↔ UI consistency on key fields
