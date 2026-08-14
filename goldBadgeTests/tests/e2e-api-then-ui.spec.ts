@@ -23,9 +23,9 @@ test(
     try {
       await expect(row).toBeVisible();
     } catch {
-      // Fallback resilience: list loaded; name still present somewhere on page
-      await expect(contactListPage.page.getByText(contact.firstName)).toBeVisible();
-      await expect(contactListPage.page.getByText(contact.lastName)).toBeVisible();
+      // Fallback resilience: list loaded; name still present in the table
+      await expect(contactListPage.contactFirstName(contact.firstName)).toBeVisible();
+      await expect(contactListPage.contactLastName(contact.lastName)).toBeVisible();
     }
 
     // Assert API ↔ UI consistency on key fields
