@@ -2,6 +2,7 @@ import { test as baseTest, expect } from '@playwright/test';
 import { LoginPage } from '@pw-gold/pages/LoginPage';
 import { ContactListPage } from '@pw-gold/pages/ContactListPage';
 import { createUserWithContact } from '@pw-gold/services/contactService';
+import { deleteUser } from '@pw-gold/api/userApi';
 import type { Contact, CreatedUser } from '@pw-gold/utils/types';
 
 type GoldFixtures = {
@@ -23,6 +24,8 @@ export const test = baseTest.extend<GoldFixtures>({
   seededContact: async ({ request }, use) => {
     const seeded = await createUserWithContact(request);
     await use(seeded);
+    // Teardown: delete user (API cascades contacts)
+    await deleteUser(request, seeded.user.token);
   },
 });
 

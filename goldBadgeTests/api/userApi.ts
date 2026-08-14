@@ -10,3 +10,11 @@ export async function createUser(
   expect(res.status(), await res.text()).toBe(201);
   return (await res.json()) as SignUpResponse;
 }
+
+/** HTTP-only: delete the authenticated user (cascades their contacts). */
+export async function deleteUser(request: APIRequestContext, token: string): Promise<void> {
+  const res = await request.delete('/users/me', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  expect(res.status(), await res.text()).toBe(200);
+}

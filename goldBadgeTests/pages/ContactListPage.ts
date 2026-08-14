@@ -17,13 +17,4 @@ export class ContactListPage {
     const fullNameRegex = new RegExp(`\\b${firstName}\\b[\\s\\S]*\\b${lastName}\\b`, 'i');
     return this.contactList.getByText(fullNameRegex);
   }
-
-  /** Name parts are dynamic per test — locator factories, not fixed constructor fields. */
-  contactFirstName(firstName: string): Locator {
-    return this.contactList.getByText(firstName);
-  }
-
-  contactLastName(lastName: string): Locator {
-    return this.contactList.getByText(lastName);
-  }
 }

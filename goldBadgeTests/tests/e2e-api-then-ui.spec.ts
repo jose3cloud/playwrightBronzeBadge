@@ -2,7 +2,7 @@ import { test, expect } from '@pw-gold/fixtures/goldBadgeFixtures';
 
 /**
  * Gold E2E: API seeds data → UI validates it.
- * AAA kept explicit. Resilience via project retries + fallback visibility check.
+ * AAA kept explicit. Flake resilience via project retries.
  */
 test(
   '@smoke @regression API creates contact, UI shows the same contact @e2e',
@@ -18,15 +18,7 @@ test(
     // Assert — UI reflects API-created dynamic data
     await expect(contactListPage.addContactButton).toBeVisible();
     await expect(contactListPage.contactList).toBeVisible();
-
-    const row = contactListPage.contactByName(contact.firstName, contact.lastName);
-    try {
-      await expect(row).toBeVisible();
-    } catch {
-      // Fallback resilience: list loaded; name still present in the table
-      await expect(contactListPage.contactFirstName(contact.firstName)).toBeVisible();
-      await expect(contactListPage.contactLastName(contact.lastName)).toBeVisible();
-    }
+    await expect(contactListPage.contactByName(contact.firstName, contact.lastName)).toBeVisible();
 
     // Assert API ↔ UI consistency on key fields
     expect(contact.owner).toBe(user.userId);
