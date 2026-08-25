@@ -21,11 +21,13 @@ test('UI Flow: Perform a user action (login submit)', async ({ loginPage, page }
   });
 
   await test.step('Perform user action (submit login form)', async () => {
-    await loginPage.login(LOGIN_DATA.valid.email, LOGIN_DATA.valid.password);
+    // Intentionally invalid — this test asserts submit UX, not successful auth.
+    // Do not use LOGIN_DATA.valid (env may hold real creds and navigate away).
+    await loginPage.login('invalid-login@example.com', 'WrongPassword!');
   });
 
   await test.step('Basic UI assertion after action', async () => {
-    // With default sample creds, login will fail and we should remain on login form.
+    // Failed login should keep the user on the login form.
     await expect(loginPage.emailInput).toBeVisible();
     await expect(page).toHaveURL(/thinking-tester-contact-list|herokuapp/i);
   });
@@ -150,20 +152,16 @@ test('UI Flow: Validate the intercepted request payload', async ({ loginPage, pa
 });
 
 test('UI Flow: Validate the intercepted response status', async ({ loginPage, page }) => {
-  await test.step('Navigate + perform action', async () => {
-    await loginPage.goto();
-    await loginPage.login(LOGIN_DATA.valid.email, LOGIN_DATA.valid.password);
-  });
-
-  await test.step('Validate intercepted response status', async () => {
-    const response = await page.waitForResponse(
+  await test.step('Navigate + perform action + capture response', async () => {
+    // Register before login so we catch the POST (same pattern as waitForRequest tests above).
+    const responsePromise = page.waitForResponse(
       (r) => loginPathRegex.test(r.url()) && r.request().method() === 'POST'
     );
+    await loginPage.goto();
+    await loginPage.login(LOGIN_DATA.valid.email, LOGIN_DATA.valid.password);
+    const response = await responsePromise;
 
-    // With the default sample creds in this repo, the app returns 401.
-    // If you set valid creds via env vars, the app may return 200.
-    // We accept either to keep this test deterministic across environments.
-    const status = response.status();
-    expect([200, 401]).toContain(status);
+    // Default sample creds → 401; valid env creds may → 200.
+    expect([200, 401]).toContain(response.status());
   });
 });

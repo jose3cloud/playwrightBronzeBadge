@@ -1,6 +1,8 @@
 import { PlaywrightTestConfig } from '@playwright/test';
+import dotenv from 'dotenv';
 
-// Common settings shared across all browsers
+dotenv.config();
+
 const commonSettings = {
   headless: true,
   screenshot: 'only-on-failure' as const,
@@ -8,7 +10,6 @@ const commonSettings = {
   baseURL: 'https://3cloudsolutions.com',
 };
 
-// Chromium-specific launch arguments (not supported by WebKit)
 const chromiumLaunchArgs = [
   '--disable-web-security',
   '--disable-features=VizDisplayCompositor',
@@ -17,55 +18,47 @@ const chromiumLaunchArgs = [
   '--disable-renderer-backgrounding',
 ];
 
-// Silver Badge timeout constants
-const SILVER_BASE_TIMEOUT_MS = 60_000;
-const SILVER_EXPECT_TIMEOUT_MS = SILVER_BASE_TIMEOUT_MS;
-const SILVER_ACTION_TIMEOUT_MS = SILVER_BASE_TIMEOUT_MS;
-const SILVER_ACTION_TIMEOUT_WEBKIT_MS = SILVER_BASE_TIMEOUT_MS * 2;
-const SILVER_NAVIGATION_TIMEOUT_MS = 90_000;
-const SILVER_NAVIGATION_TIMEOUT_WEBKIT_MS = SILVER_ACTION_TIMEOUT_WEBKIT_MS;
+const CONTACT_LIST_BASE_URL =
+  process.env.CONTACT_LIST_BASE_URL || 'https://thinking-tester-contact-list.herokuapp.com';
 
-// Silver Badge settings
-const silverBadgeSettings = {
+const BADGE_BASE_TIMEOUT_MS = 60_000;
+const BADGE_NAVIGATION_TIMEOUT_MS = 90_000;
+const BADGE_WEBKIT_ACTION_TIMEOUT_MS = BADGE_BASE_TIMEOUT_MS * 2;
+
+const contactListSettings = {
   headless: true,
   screenshot: 'only-on-failure' as const,
   video: 'retain-on-failure' as const,
-  baseURL: process.env.CONTACT_LIST_BASE_URL || 'https://thinking-tester-contact-list.herokuapp.com',
-  actionTimeout: SILVER_ACTION_TIMEOUT_MS,
-  navigationTimeout: SILVER_NAVIGATION_TIMEOUT_MS,
+  baseURL: CONTACT_LIST_BASE_URL,
+  actionTimeout: BADGE_BASE_TIMEOUT_MS,
+  navigationTimeout: BADGE_NAVIGATION_TIMEOUT_MS,
 };
 
-// Detect when the Silver Badge project is being run, so we can scope
-// retries/parallel settings without affecting Bronze projects.
 const cli = process.argv.join(' ');
 const silverProjectMatches = cli.match(/silver-badge-(chromium|firefox|webkit)/g) || [];
+const goldProjectMatches = cli.match(/gold-badge-(chromium|firefox|webkit)/g) || [];
 const isSilverRun = silverProjectMatches.length > 0;
-const isMultiSilverProjectRun = silverProjectMatches.length > 1;
+const isGoldRun = goldProjectMatches.length > 0;
+const isBadgeRun = isSilverRun || isGoldRun;
 
 const config: PlaywrightTestConfig = {
   testDir: './uitests/tests',
-  // Extra credit (scoped): retries + parallel execution for Silver Badge only
-  fullyParallel: isSilverRun,
-  retries: isSilverRun ? (process.env.CI ? 2 : 1) : 0,
-  // Workers strategy:
-  // - CI: cap at 5
-  // - local: use 10 (single or multi-project)
-  workers: isSilverRun ? (process.env.CI ? 5 : 10) : undefined,
+  fullyParallel: isBadgeRun,
+  retries: isBadgeRun ? (process.env.CI ? 2 : 1) : 0,
+  workers: isBadgeRun ? (process.env.CI ? 5 : 10) : undefined,
+  reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     ...commonSettings,
     browserName: 'chromium',
   },
   projects: [
-    // Bronze Badge Projects
     {
       name: 'chromium',
       testDir: './uitests/tests',
       use: {
         ...commonSettings,
         browserName: 'chromium',
-        launchOptions: {
-          args: chromiumLaunchArgs,
-        },
+        launchOptions: { args: chromiumLaunchArgs },
       },
     },
     {
@@ -84,27 +77,24 @@ const config: PlaywrightTestConfig = {
         browserName: 'webkit',
       },
     },
-    // Silver Badge Project
     {
       name: 'silver-badge-chromium',
       testDir: './silverBadgeTests/tests',
       timeout: 90_000,
-      expect: { timeout: SILVER_EXPECT_TIMEOUT_MS },
+      expect: { timeout: BADGE_BASE_TIMEOUT_MS },
       use: {
-        ...silverBadgeSettings,
+        ...contactListSettings,
         browserName: 'chromium',
-        launchOptions: {
-          args: chromiumLaunchArgs,
-        },
+        launchOptions: { args: chromiumLaunchArgs },
       },
     },
     {
       name: 'silver-badge-firefox',
       testDir: './silverBadgeTests/tests',
       timeout: 90_000,
-      expect: { timeout: SILVER_EXPECT_TIMEOUT_MS },
+      expect: { timeout: BADGE_BASE_TIMEOUT_MS },
       use: {
-        ...silverBadgeSettings,
+        ...contactListSettings,
         browserName: 'firefox',
       },
     },
@@ -112,12 +102,45 @@ const config: PlaywrightTestConfig = {
       name: 'silver-badge-webkit',
       testDir: './silverBadgeTests/tests',
       timeout: 180_000,
-      expect: { timeout: SILVER_EXPECT_TIMEOUT_MS },
+      expect: { timeout: BADGE_BASE_TIMEOUT_MS },
       use: {
-        ...silverBadgeSettings,
+        ...contactListSettings,
         browserName: 'webkit',
-        actionTimeout: SILVER_ACTION_TIMEOUT_WEBKIT_MS,
-        navigationTimeout: SILVER_NAVIGATION_TIMEOUT_WEBKIT_MS,
+        actionTimeout: BADGE_WEBKIT_ACTION_TIMEOUT_MS,
+        navigationTimeout: BADGE_WEBKIT_ACTION_TIMEOUT_MS,
+      },
+    },
+    {
+      name: 'gold-badge-chromium',
+      testDir: './goldBadgeTests/tests',
+      timeout: 90_000,
+      expect: { timeout: BADGE_BASE_TIMEOUT_MS },
+      use: {
+        ...contactListSettings,
+        browserName: 'chromium',
+        launchOptions: { args: chromiumLaunchArgs },
+      },
+    },
+    {
+      name: 'gold-badge-firefox',
+      testDir: './goldBadgeTests/tests',
+      timeout: 90_000,
+      expect: { timeout: BADGE_BASE_TIMEOUT_MS },
+      use: {
+        ...contactListSettings,
+        browserName: 'firefox',
+      },
+    },
+    {
+      name: 'gold-badge-webkit',
+      testDir: './goldBadgeTests/tests',
+      timeout: 180_000,
+      expect: { timeout: BADGE_BASE_TIMEOUT_MS },
+      use: {
+        ...contactListSettings,
+        browserName: 'webkit',
+        actionTimeout: BADGE_WEBKIT_ACTION_TIMEOUT_MS,
+        navigationTimeout: BADGE_WEBKIT_ACTION_TIMEOUT_MS,
       },
     },
   ],

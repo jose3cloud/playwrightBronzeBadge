@@ -1,29 +1,33 @@
 name: Silver Badge Tests (Manual)
 
 on:
-  workflow_dispatch: # Allow manual triggering
+  workflow_dispatch:
 
 jobs:
   test:
     name: Run Silver Badge Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-jammy
+    env:
+      # Required for Firefox in the Playwright container on GHA
+      HOME: /root
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Cache node_modules
+        id: npm-cache
+        uses: actions/cache@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
 
       - name: Run Silver Badge tests
         run: npm run test:silver

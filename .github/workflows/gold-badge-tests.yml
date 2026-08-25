@@ -1,18 +1,18 @@
-name: Silver Badge Tests
+name: Gold Badge Tests
 
 on:
   push:
     branches: ['*']
   pull_request:
     branches: ['*']
-  schedule:
-    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
-  test:
-    name: Run Silver Badge Tests
+  gold-tests:
+    name: Gold Badge (all browsers)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
+    # Browsers + OS deps preinstalled — no install-deps / playwright install steps
     container:
       image: mcr.microsoft.com/playwright:v1.55.0-jammy
     env:
@@ -34,23 +34,23 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Run Silver Badge tests
-        run: npm run test:silver
+      - name: Run Gold Badge tests (Chromium, Firefox, WebKit)
+        run: npm run test:gold
         env:
           CI: true
 
-      - name: Upload test results
+      - name: Upload HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: gold-playwright-report
           path: playwright-report/
           retention-days: 7
 
-      - name: Upload test videos
+      - name: Upload test artifacts (screenshots, videos, traces)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-videos
+          name: gold-test-results
           path: test-results/
           retention-days: 7

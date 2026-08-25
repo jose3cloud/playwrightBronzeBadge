@@ -57,8 +57,7 @@ test('UI Flow: Add a New Contact (UI form submission)', async ({
     await expect(addContactPage.firstNameInput).toHaveValue(firstName);
     await expect(addContactPage.lastNameInput).toHaveValue(lastName);
 
-    // WebKit can be flaky with request event timing; treat request-capture as best-effort and
-    // fall back to asserting navigation/UI if needed.
+    // Optional: if we catch the create request, assert payload names.
     // Uses project-level actionTimeout (configured in playwright.config.ts)
     const createReqPromise = page
       .waitForRequest((r) => {
@@ -76,14 +75,9 @@ test('UI Flow: Add a New Contact (UI form submission)', async ({
       expect(postData).toContain(lastName);
     }
 
-    // Best-effort: if the app navigates back, validate UI.
-    // Uses project-level navigationTimeout and expect.timeout (configured in playwright.config.ts)
-    await page.waitForURL(/contactList/i).catch(() => {});
-    const navigatedToList = /contactList/i.test(page.url());
-    expect(navigatedToList || createReq !== null).toBe(true);
-    if (navigatedToList) {
-      await expect(contactListPage.contactByName(firstName, lastName)).toBeVisible();
-    }
+    // Required: land on contact list and show the new contact
+    await expect(page).toHaveURL(/contactList/i);
+    await expect(contactListPage.contactByName(firstName, lastName)).toBeVisible();
   });
 });
 

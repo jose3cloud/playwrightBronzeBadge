@@ -10,7 +10,8 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@pw-silver/*": ["silverBadgeTests/*"]
+      "@pw-silver/*": ["silverBadgeTests/*"],
+      "@pw-gold/*": ["goldBadgeTests/*"]
     }
   },
   "include": ["**/*.ts"],
